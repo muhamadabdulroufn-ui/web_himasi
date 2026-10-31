@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Divisi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class DivisiController extends Controller
@@ -38,7 +39,10 @@ class DivisiController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $data['slug'] = $this->uniqueSlug($data['name']);
 
         Divisi::create($data);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
@@ -79,9 +83,11 @@ class DivisiController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
-
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
         $book = Divisi::findOrFail($id);
+        $data['slug'] = $this->uniqueSlug($data['name'], $book->id);
 
         $book->update($data);
 
@@ -103,5 +109,22 @@ class DivisiController extends Controller
 
         Alert::success('Berhasil', 'Data Berhasil dihapus');
         return back();
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name) ?: 'divisi';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (Divisi::where('slug', $slug)
+            ->when($ignoreId, function ($query) use ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            })
+            ->exists()) {
+            $slug = $baseSlug . '-' . $suffix++;
+        }
+
+        return $slug;
     }
 }

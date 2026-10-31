@@ -34,10 +34,10 @@
                 @forelse($data as $data)
                 <tr>
                 <td style="width:20px">{{ ++$no . "." }} </td>
-                <td style="width:50px"><img src="{{ Storage::url($data->foto) }}" class="img-thumbnail img-fluid img-responsive" alt="" style="width: 100%"></td>
+                <td style="width:50px"><img src="{{ Storage::url($data->image) }}" class="img-thumbnail img-fluid img-responsive" alt="" style="width: 100%"></td>
                 <td>{{ $data->name }}</td>
                 <td>{{ $data->divisi->name }}</td>
-                <td>{{ $data->jabatan }}</td>
+                <td>{{ $data->position }}</td>
                 <td>{{ $data->jurusan }}</td>
                 <td class="d-flex">
                   <a href="{{ route('member-divisi.edit', $data->id) }} " class="btn btn-sm btn-warning mr-2" data-toggle="tooltip" data-placement="bottom" title="Edit">
@@ -76,11 +76,11 @@
         var name = $(this).data("name");
         event.preventDefault();
         swal({
-            title: "Are you sure you want to delete this record?",
-            text: "If you delete this, it will be gone forever.",
+            title: "Apakah Anda yakin ingin menghapus data ini?",
+            text: "Data yang dihapus tidak dapat dikembalikan.",
             icon: "warning",
             type: "warning",
-            buttons: ["Cancel","Yes!"],
+            buttons: ["Batal","Ya, hapus"],
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
         }).then((willDelete) => {

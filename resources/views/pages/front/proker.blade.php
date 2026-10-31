@@ -36,7 +36,7 @@
                 @forelse ($proker as $proker)
                   <tr>
                     <td>{{ ++$no . "." }}</td>
-                    <td>{{ $proker->periode->name }}</td>
+                    <td>{{ $proker->periode->name }} ({{ $proker->periode->year_period }})</td>
                     <td>{{ $proker->divisi->name }}</td>
                     <td>{{ $proker->name }}</td>
                     <td>{{ \Carbon\Carbon::parse($proker->date)->format('d F Y') }}</td>

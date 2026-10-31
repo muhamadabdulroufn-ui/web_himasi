@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
+use App\Models\Proker;
+use App\Models\ProkerComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -12,11 +13,14 @@ class CommentController extends Controller
 {
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'comment' => 'required|string|max:5000',
+        ]);
 
-        $data['user_id'] = Auth::user()->id;
+        $data['proker_id'] = Proker::findOrFail($request->route('id'))->id;
+        $data['user_id'] = Auth::id();
 
-        Comment::create($data);
+        ProkerComment::create($data);
         Alert::success('Berhasil', 'Komentar berhasil ditambahkan');
         return redirect()->back();
     }
@@ -24,9 +28,11 @@ class CommentController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
+        $data = $request->validate([
+            'comment' => 'required|string|max:5000',
+        ]);
 
-        $book = Comment::findOrFail($id);
+        $book = ProkerComment::findOrFail($id);
 
         $book->update($data);
 
@@ -36,7 +42,7 @@ class CommentController extends Controller
 
     public function destroy($id)
     {
-        $data = Comment::findOrFail($id);
+        $data = ProkerComment::findOrFail($id);
 
         $data->delete();
 

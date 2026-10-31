@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Periode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class PeriodeController extends Controller
@@ -41,11 +40,8 @@ class PeriodeController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'year_period' => 'required|string|max:50',
         ]);
-
-        if (Schema::hasColumn('periods', 'year_period')) {
-            $data['year_period'] = $data['name'];
-        }
 
         Periode::create($data);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
@@ -87,11 +83,8 @@ class PeriodeController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'year_period' => 'required|string|max:50',
         ]);
-
-        if (Schema::hasColumn('periods', 'year_period')) {
-            $data['year_period'] = $data['name'];
-        }
 
         $book = Periode::findOrFail($id);
 

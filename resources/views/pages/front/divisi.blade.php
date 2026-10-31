@@ -26,8 +26,8 @@
           @forelse ($divisi as $dv)
           <div class="col-md-4 mt-4">
             <div class="card p-3 text-center shadow border-0">
-              <img src="{{ Storage::url($dv->foto) }}" class="mx-auto mb-2" style="width: 75%" alt="">
-              <h3>{{ $dv->jabatan }}</h3>
+              <img src="{{ Storage::url($dv->image) }}" class="mx-auto mb-2" style="width: 75%" alt="">
+              <h3>{{ $dv->position }}</h3>
               <span class="fw-normal fs-5">{{ $dv->name }}</span>
               <span class="fw-normal fs-5">{{ $dv->jurusan }}</span>
             </div>

@@ -9,7 +9,12 @@ class News extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['slug', 'title', 'description', 'image', 'user_id', 'category_id'];
+    protected $fillable = ['slug', 'title', 'content', 'image', 'user_id', 'category_id'];
+
+    public function getDescriptionAttribute($value)
+    {
+        return $value ?? $this->attributes['content'] ?? null;
+    }
 
     public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

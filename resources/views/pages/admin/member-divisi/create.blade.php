@@ -22,11 +22,20 @@
                 </div>
                 <div class="form-group col-md-6">
                   <label>Divisi</label>
-                  <select class="form-control" name="divisi_id" id="exampleFormControlSelect1">
-                    <option selected disabled>Pilih Divisi</option>
+                  <select class="form-control" name="divisi_id" id="exampleFormControlSelect1" required>
+                    <option value="" selected disabled>Pilih Divisi</option>
                     @foreach ($divisi as $div)
                       <option value="{{ $div->id }}">{{ $div->name }}</option>
-                    @endforeach ()
+                    @endforeach
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Periode</label>
+                  <select class="form-control" name="period_id" required>
+                    <option value="" selected disabled>Pilih Periode</option>
+                    @foreach ($periode as $period)
+                      <option value="{{ $period->id }}">{{ $period->name }} ({{ $period->year_period }})</option>
+                    @endforeach
                   </select>
                 </div>
               </div>
@@ -41,7 +50,7 @@
                 </div>
                 <div class="form-group col-md-6">
                   <label>Foto</label>
-                  <input type="file" name="foto" class="form-control" value="{{ old('foto') }}" required>
+                  <input type="file" name="foto" class="form-control" accept="image/*" required>
                 </div>
               </div>
             <button type="submit" class="btn btn-icon icon-left btn-primary">

@@ -11,7 +11,7 @@ class MemberDivisi extends Model
 
     protected $table = 'member_divisies';
 
-    protected $fillable = ['name', 'foto', 'jabatan', 'jurusan', 'divisi_id'];
+    protected $fillable = ['name', 'divisi_id', 'period_id', 'position', 'jurusan', 'image'];
 
     public function divisi(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

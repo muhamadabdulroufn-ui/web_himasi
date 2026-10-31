@@ -13,9 +13,18 @@ class Proker extends Model
 
     protected $guarded = [];
 
+    public function getStatusAttribute($value): string
+    {
+        return [
+            'Plan' => 'belum_terlaksana',
+            'On Progress' => 'proses',
+            'Done' => 'terlaksana',
+        ][$value] ?? $value;
+    }
+
     public function comment(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Comment::class, 'proker_id');
+        return $this->hasMany(ProkerComment::class, 'proker_id');
     }
 
     public function divisi(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -43,18 +43,21 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        if ($request->file('image')) {
-            $data['image'] = $request->file('image')->store(
-                'assets/news',
-                'public'
-            );
-        }
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:news_categories,id',
+            'description' => 'required|string',
+            'image' => 'required|image',
+        ]);
 
-        $data['slug'] = Str::slug($request->title, '-');
-        $data['user_id'] = Auth::user()->id;
-
-        News::create($data);
+        News::create([
+            'title' => $data['title'],
+            'slug' => $this->uniqueSlug($data['title']),
+            'category_id' => $data['category_id'],
+            'content' => $data['description'],
+            'image' => $request->file('image')->store('assets/news', 'public'),
+            'user_id' => Auth::id(),
+        ]);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
         return redirect()->route('berita.index');
     }
@@ -95,18 +98,31 @@ class NewsController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
-
-        if ($request->file('image')) {
-            $data['image'] = $request->file('image')->store(
-                'assets/news',
-                'public'
-            );
-        }
-
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:news_categories,id',
+            'description' => 'required|string',
+            'image' => 'nullable|image',
+        ]);
         $news = News::findOrFail($id);
 
-        $news->update($data);
+        $attributes = [
+            'title' => $data['title'],
+            'slug' => $this->uniqueSlug($data['title'], $news->id),
+            'category_id' => $data['category_id'],
+            'content' => $data['description'],
+        ];
+
+        if ($request->hasFile('image')) {
+            $oldImage = $news->image;
+            $attributes['image'] = $request->file('image')->store('assets/news', 'public');
+        }
+
+        $news->update($attributes);
+
+        if (isset($oldImage)) {
+            Storage::disk('public')->delete($oldImage);
+        }
 
         Alert::success('Berhasil', 'Data Berhasil diperbarui');
         return redirect()->route('berita.index');
@@ -122,10 +138,29 @@ class NewsController extends Controller
     {
         $data = News::findOrFail($id);
 
-        Storage::disk('public')->delete($data->image);
+        if ($data->image) {
+            Storage::disk('public')->delete($data->image);
+        }
         $data->delete();
 
         Alert::success('Berhasil', 'Data Berhasil dihapus');
         return back();
+    }
+
+    private function uniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($title) ?: 'artikel';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (News::where('slug', $slug)
+            ->when($ignoreId, function ($query) use ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            })
+            ->exists()) {
+            $slug = $baseSlug . '-' . $suffix++;
+        }
+
+        return $slug;
     }
 }

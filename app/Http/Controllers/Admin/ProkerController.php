@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
 use App\Models\Divisi;
 use App\Models\Proker;
-use App\Models\NewsCategory;
 use App\Models\Periode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -58,23 +57,34 @@ class ProkerController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'divisi_id' => 'required|exists:divisies,id',
+            'status' => 'required|in:belum_terlaksana,proses,terlaksana',
+            'periode_id' => 'required|exists:periods,id',
+            'proposal' => 'nullable|file|max:10240',
+            'lpj' => 'nullable|file|max:10240',
+            'link_documentation' => 'nullable|url|max:2048',
+            'description' => 'nullable|string',
+        ]);
 
         if ($request->file('proposal')) {
-            $data['proposal'] = $request->file('proposal')->store(
-                'assets/proker',
-                'public'
-            );
+            $data['proposal'] = $request->file('proposal')->store('assets/proker', 'public');
         }
 
         if ($request->file('lpj')) {
-            $data['lpj'] = $request->file('lpj')->store(
-                'assets/proker',
-                'public'
-            );
+            $data['lpj'] = $request->file('lpj')->store('assets/proker', 'public');
         }
 
-        $data['slug'] = Str::slug($request->name, '-');
+        $data['slug'] = $this->uniqueSlug($data['name']);
+        if (Schema::hasColumn('prokers', 'title')) {
+            $data['title'] = $data['name'];
+        }
+        if (Schema::hasColumn('prokers', 'period_id')) {
+            $data['period_id'] = $data['periode_id'];
+        }
+        $data['status'] = $this->databaseStatus($data['status']);
 
         Proker::create($data);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
@@ -121,25 +131,38 @@ class ProkerController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'divisi_id' => 'required|exists:divisies,id',
+            'status' => 'required|in:belum_terlaksana,proses,terlaksana',
+            'periode_id' => 'required|exists:periods,id',
+            'proposal' => 'nullable|file|max:10240',
+            'lpj' => 'nullable|file|max:10240',
+            'link_documentation' => 'nullable|url|max:2048',
+            'description' => 'nullable|string',
+        ]);
+
+        $book = Proker::findOrFail($id);
 
         if ($request->file('proposal')) {
-            $data['proposal'] = $request->file('proposal')->store(
-                'assets/proker',
-                'public'
-            );
+            $data['proposal'] = $request->file('proposal')->store('assets/proker', 'public');
+            Storage::disk('public')->delete($book->proposal);
         }
 
         if ($request->file('lpj')) {
-            $data['lpj'] = $request->file('lpj')->store(
-                'assets/proker',
-                'public'
-            );
+            $data['lpj'] = $request->file('lpj')->store('assets/proker', 'public');
+            Storage::disk('public')->delete($book->lpj);
         }
 
-        $data['slug'] = Str::slug($request->name, '-');
-
-        $book = Proker::findOrFail($id);
+        $data['slug'] = $this->uniqueSlug($data['name'], $book->id);
+        if (Schema::hasColumn('prokers', 'title')) {
+            $data['title'] = $data['name'];
+        }
+        if (Schema::hasColumn('prokers', 'period_id')) {
+            $data['period_id'] = $data['periode_id'];
+        }
+        $data['status'] = $this->databaseStatus($data['status']);
 
         $book->update($data);
 
@@ -157,12 +180,46 @@ class ProkerController extends Controller
     {
         $data = Proker::findOrFail($id);
 
-        Storage::disk('public')->delete($data->thumbnail);
         Storage::disk('public')->delete($data->proposal);
         Storage::disk('public')->delete($data->lpj);
         $data->delete();
 
         Alert::success('Berhasil', 'Data Berhasil dihapus');
         return back();
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name) ?: 'program-kerja';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (Proker::where('slug', $slug)
+            ->when($ignoreId, function ($query) use ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            })
+            ->exists()) {
+            $slug = $baseSlug . '-' . $suffix++;
+        }
+
+        return $slug;
+    }
+
+    private function databaseStatus(string $status): string
+    {
+        if (!Schema::hasColumn('prokers', 'status')) {
+            return $status;
+        }
+
+        $column = DB::selectOne("SHOW COLUMNS FROM prokers LIKE 'status'");
+        if (!$column || strpos($column->Type, "enum('Plan'") !== 0) {
+            return $status;
+        }
+
+        return [
+            'belum_terlaksana' => 'Plan',
+            'proses' => 'On Progress',
+            'terlaksana' => 'Done',
+        ][$status];
     }
 }

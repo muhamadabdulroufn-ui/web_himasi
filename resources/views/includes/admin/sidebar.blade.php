@@ -26,6 +26,9 @@
         <li class="nav-item {{ Request::is('admin/profile/1') ? 'active' : '' }}">
           <a href="{{ url('admin/profile/1')}}" class="nav-link"><i class="fas fa-building"></i><span>Profil Organisasi</span></a>
         </li>
+        <li class="nav-item {{ Request::is('admin/home-background') ? 'active' : '' }}">
+          <a href="{{ route('home-background.index') }}" class="nav-link"><i class="fas fa-images"></i><span>Foto Latar Beranda</span></a>
+        </li>
         <li class="nav-item {{ Request::is('admin/divisi') ? 'active' : '' }}">
           <a href="{{ url('admin/divisi')}}" class="nav-link"><i class="fas fa-th"></i><span>Divisi</span></a>
         </li>

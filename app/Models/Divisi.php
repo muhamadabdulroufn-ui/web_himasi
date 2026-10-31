@@ -11,5 +11,5 @@ class Divisi extends Model
 
     protected $table = 'divisies';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'slug'];
 }

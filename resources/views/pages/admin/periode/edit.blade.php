@@ -17,8 +17,18 @@
             @csrf
           <div class="card-body">          
             <div class="form-group">
-              <label>Nama</label>
-              <input type="text" name="name" class="form-control" value="{{ $data->name }}" required>
+              <label>Nama Kabinet</label>
+              <input type="text" name="name" class="form-control" value="{{ old('name', $data->name) }}" required>
+              @error('name')
+                <small class="text-danger">{{ $message }}</small>
+              @enderror
+            </div>
+            <div class="form-group">
+              <label>Tahun Periode</label>
+              <input type="text" name="year_period" class="form-control" value="{{ old('year_period', $data->year_period) }}" placeholder="Contoh: 2026-2027" required>
+              @error('year_period')
+                <small class="text-danger">{{ $message }}</small>
+              @enderror
             </div>
             <button type="submit" class="btn btn-icon icon-left btn-primary">
               Simpan

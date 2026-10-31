@@ -11,5 +11,33 @@ class Agenda extends Model
 
     protected $table = 'agendas';
 
-    protected $fillable = ['name', 'description', 'address', 'date', 'thumbnail'];
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'location',
+        'date_start',
+        'date_end',
+        'image',
+    ];
+
+    public function getNameAttribute($value)
+    {
+        return $value ?? $this->attributes['title'] ?? null;
+    }
+
+    public function getAddressAttribute($value)
+    {
+        return $value ?? $this->attributes['location'] ?? null;
+    }
+
+    public function getDateAttribute($value)
+    {
+        return $value ?? $this->attributes['date_start'] ?? null;
+    }
+
+    public function getThumbnailAttribute($value)
+    {
+        return $value ?? $this->attributes['image'] ?? null;
+    }
 }

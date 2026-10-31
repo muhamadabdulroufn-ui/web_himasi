@@ -24,7 +24,7 @@
   </div>
 <!-- HERO -->
 <div class="owl-carousel owl-theme hero-slider">
-    <div class="slide slide1">
+    <div class="slide slide1" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ $heroBackgrounds[0] }}');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-5 mx-auto d-flex">
@@ -39,7 +39,7 @@
             </div>
         </div>
     </div>
-    <div class="slide slide2">
+    <div class="slide slide2" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ $heroBackgrounds[1] }}');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-5 mx-auto d-flex">
@@ -54,7 +54,7 @@
             </div>
         </div>
     </div>
-    <div class="slide slide3">
+    <div class="slide slide3" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ $heroBackgrounds[2] }}');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-5 mx-auto d-flex">

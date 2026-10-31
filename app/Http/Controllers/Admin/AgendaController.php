@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class AgendaController extends Controller
@@ -49,16 +50,24 @@ class AgendaController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'address' => 'required|string|max:255',
+            'date' => 'required|date',
+            'thumbnail' => 'required|image',
+        ]);
 
-        if ($request->file('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store(
-                'assets/agenda',
-                'public'
-            );
-        }
+        $data['image'] = $request->file('thumbnail')->store('assets/agenda', 'public');
 
-        Agenda::create($data);
+        Agenda::create([
+            'title' => $data['name'],
+            'slug' => $this->uniqueSlug($data['name']),
+            'description' => $data['description'],
+            'location' => $data['address'],
+            'date_start' => $data['date'],
+            'image' => $data['image'],
+        ]);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
         return redirect()->route('agenda.index');
     }
@@ -97,18 +106,33 @@ class AgendaController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
-
         $agenda = Agenda::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'address' => 'required|string|max:255',
+            'date' => 'required|date',
+            'thumbnail' => 'nullable|image',
+        ]);
 
-        if ($request->file('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store(
-                'assets/agenda',
-                'public'
-            );
+        $attributes = [
+            'title' => $data['name'],
+            'slug' => $this->uniqueSlug($data['name'], $agenda->id),
+            'description' => $data['description'],
+            'location' => $data['address'],
+            'date_start' => $data['date'],
+        ];
+
+        if ($request->hasFile('thumbnail')) {
+            $oldImage = $agenda->image;
+            $attributes['image'] = $request->file('thumbnail')->store('assets/agenda', 'public');
         }
 
-        $agenda->update($data);
+        $agenda->update($attributes);
+
+        if (isset($oldImage)) {
+            Storage::disk('public')->delete($oldImage);
+        }
 
         Alert::success('Berhasil', 'Data Berhasil diperbarui');
         return redirect()->route('agenda.index');
@@ -124,11 +148,30 @@ class AgendaController extends Controller
     {
         $data = Agenda::findOrFail($id);
 
-        Storage::disk('public')->delete($data->thumbnail);
+        if ($data->image) {
+            Storage::disk('public')->delete($data->image);
+        }
 
         $data->delete();
 
         Alert::success('Berhasil', 'Data Berhasil dihapus');
         return back();
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name) ?: 'agenda';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (Agenda::where('slug', $slug)
+            ->when($ignoreId, function ($query) use ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            })
+            ->exists()) {
+            $slug = $baseSlug . '-' . $suffix++;
+        }
+
+        return $slug;
     }
 }

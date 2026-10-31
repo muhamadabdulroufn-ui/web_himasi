@@ -11,5 +11,5 @@ class NewsCategory extends Model
 
     protected $table = 'news_categories';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'slug'];
 }

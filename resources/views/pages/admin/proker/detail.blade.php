@@ -50,7 +50,7 @@
               <div class="col-md-5">
                 <h6 class="">Nama Program: <span class="font-weight-normal">{{ $data->name }}</span></h6>
                 <h6 class="">Tanggal: <span class="font-weight-normal">{{ $data->date }}</span></h6>
-                <h6 class="">Periode: <span class="font-weight-normal">{{ $data->periode->name }}</span></h6>
+                <h6 class="">Periode: <span class="font-weight-normal">{{ $data->periode->name }} ({{ $data->periode->year_period }})</span></h6>
                 <h6 class="">Divisi: <span class="font-weight-normal">{{ $data->divisi->name }}</span></h6>
                 @if ($data->status == 'belum_terlaksana')
                   <h6 class="">Status: <span class="badge badge-danger">Belum Terlaksana</span></h6>
@@ -85,7 +85,7 @@
               @forelse ($data->comment as $comment) 
                 <li class="media">
                   <div class="media-body">
-                    <div class="mt-0 mb-1 font-weight-bold">{{ $comment->user->name }}</div>
+                    <div class="mt-0 mb-1 font-weight-bold">{{ optional($comment->user)->name ?? 'Pengguna' }}</div>
                     <div class="text-muted font-600-bold">{{ $comment->comment }}</div>
                   </div>
                 </li>

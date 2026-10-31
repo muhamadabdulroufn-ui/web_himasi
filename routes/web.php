@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DetailGalleryController;
 use App\Http\Controllers\Admin\DivisiController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\HomeBackgroundController;
 use App\Http\Controllers\Admin\MemberDivisiController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\NewsController;
@@ -57,6 +58,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'checkRole:admin,pem
   Route::post('/comment/{id}', [CommentController::class, 'store'])->name('addComment');
 });
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'checkRole:admin']], function () {
+  Route::get('/home-background', [HomeBackgroundController::class, 'index'])->name('home-background.index');
+  Route::post('/home-background', [HomeBackgroundController::class, 'update'])->name('home-background.update');
   Route::get('/profile/{id}', [ProfilesController::class, 'index']);
   Route::post('/profile/{id}', [ProfilesController::class, 'update']);
   Route::resource('/divisi', DivisiController::class);

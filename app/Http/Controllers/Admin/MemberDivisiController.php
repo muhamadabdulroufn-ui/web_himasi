@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Divisi;
 use App\Models\MemberDivisi;
+use App\Models\Periode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -30,8 +31,10 @@ class MemberDivisiController extends Controller
     public function create()
     {
         $divisi = Divisi::get();
+        $periode = Periode::get();
         return view('pages.admin.member-divisi.create', [
-            'divisi' => $divisi
+            'divisi' => $divisi,
+            'periode' => $periode,
         ]);
     }
 
@@ -43,14 +46,18 @@ class MemberDivisiController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'divisi_id' => 'required|exists:divisies,id',
+            'period_id' => 'required|exists:periods,id',
+            'jabatan' => 'required|string|max:255',
+            'jurusan' => 'required|string|max:255',
+            'foto' => 'required|image|max:5120',
+        ]);
 
-        if ($request->file('foto')) {
-            $data['foto'] = $request->file('foto')->store(
-                'assets/divisi',
-                'public'
-            );
-        }
+        $data['image'] = $request->file('foto')->store('assets/divisi', 'public');
+        $data['position'] = $data['jabatan'];
+        unset($data['foto'], $data['jabatan']);
 
         MemberDivisi::create($data);
         Alert::success('Berhasil', 'Data Baru Berhasil ditambahkan');
@@ -78,7 +85,8 @@ class MemberDivisiController extends Controller
     {
         return view('pages.admin.member-divisi.edit', [
             'data' => MemberDivisi::findOrFail($id),
-            'divisi' => Divisi::get()
+            'divisi' => Divisi::get(),
+            'periode' => Periode::get(),
         ]);
     }
 
@@ -92,17 +100,23 @@ class MemberDivisiController extends Controller
     public function update(Request $request, $id)
     {
 
-        $data = $request->all();
-
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'divisi_id' => 'required|exists:divisies,id',
+            'period_id' => 'required|exists:periods,id',
+            'jabatan' => 'required|string|max:255',
+            'jurusan' => 'required|string|max:255',
+            'foto' => 'nullable|image|max:5120',
+        ]);
         $memberDivisi = MemberDivisi::findOrFail($id);
 
         if ($request->file('foto')) {
-            $data['foto'] = $request->file('foto')->store(
-                'assets/divisi',
-                'public'
-            );
+            $data['image'] = $request->file('foto')->store('assets/divisi', 'public');
+            Storage::disk('public')->delete($memberDivisi->image);
         }
 
+        $data['position'] = $data['jabatan'];
+        unset($data['foto'], $data['jabatan']);
         $memberDivisi->update($data);
 
         Alert::success('Berhasil', 'Data Berhasil diperbarui');
@@ -119,7 +133,7 @@ class MemberDivisiController extends Controller
     {
         $data = MemberDivisi::findOrFail($id);
 
-        Storage::disk('public')->delete($data->foto);
+        Storage::disk('public')->delete($data->image);
 
         $data->delete();
 

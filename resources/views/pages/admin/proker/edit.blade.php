@@ -53,7 +53,7 @@
                   <select class="form-control" name="periode_id" id="exampleFormControlSelect1" required>
                     <option selected disabled>Pilih Periode</option>
                     @foreach ($periode as $periode)
-                      <option value="{{ $periode->id }}" {{ $periode->id == $data->periode_id ? 'selected' : '' }}>{{ $periode->name }}</option>
+                      <option value="{{ $periode->id }}" {{ $periode->id == $data->periode_id ? 'selected' : '' }}>{{ $periode->name }} ({{ $periode->year_period }})</option>
                     @endforeach
                   </select>
                 </div>

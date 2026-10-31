@@ -80,11 +80,11 @@
         var name = $(this).data("name");
         event.preventDefault();
         swal({
-            title: "Are you sure you want to delete this record?",
-            text: "If you delete this, it will be gone forever.",
+            title: "Apakah Anda yakin ingin menghapus data ini?",
+            text: "Data yang dihapus tidak dapat dikembalikan.",
             icon: "warning",
             type: "warning",
-            buttons: ["Cancel","Yes!"],
+            buttons: ["Batal","Ya, hapus"],
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
         }).then((willDelete) => {

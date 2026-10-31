@@ -21,7 +21,8 @@
               <thead>
                   <tr>
                      <th>No</th>
-                      <th>Nama</th>
+                      <th>Nama Kabinet</th>
+                      <th>Tahun Periode</th>
                       <th>Aksi</th>
                   </tr>
               </thead>
@@ -31,6 +32,7 @@
                 <tr>
                 <td>{{ ++$no . "." }} </td>
                 <td>{{ $data->name }}</td>
+                <td>{{ $data->year_period }}</td>
                 <td class="d-flex">
                   <a href="{{ route('periode.edit', $data->id) }} " class="btn btn-sm btn-warning mr-2" data-toggle="tooltip" data-placement="bottom" title="Edit">
                     <i class="fa fa-pencil-alt" ></i>
@@ -45,7 +47,7 @@
                 </tr>
                 @empty
                   <tr>
-                      <td colspan="7" class="text-center">
+                      <td colspan="4" class="text-center">
                           Data Kosong
                       </td>
                   </tr>
@@ -68,11 +70,11 @@
         var name = $(this).data("name");
         event.preventDefault();
         swal({
-            title: "Are you sure you want to delete this record?",
-            text: "If you delete this, it will be gone forever.",
+            title: "Apakah Anda yakin ingin menghapus data ini?",
+            text: "Data yang dihapus tidak dapat dikembalikan.",
             icon: "warning",
             type: "warning",
-            buttons: ["Cancel","Yes!"],
+            buttons: ["Batal","Ya, hapus"],
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
         }).then((willDelete) => {
